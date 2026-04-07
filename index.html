@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DTR System — Municipality of Balayan</title>
 <link rel="manifest" href="manifest.json"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -19,7 +21,7 @@ button{cursor:pointer;font-family:inherit}input,select,textarea{font-family:inhe
 #auth-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 20%,#1B3A6B33 0%,transparent 60%),radial-gradient(ellipse at 10% 80%,#06B6D420 0%,transparent 50%),var(--bg);z-index:9999}
 .auth-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px;width:100%;max-width:420px;box-shadow:var(--shadow);animation:slideUp .4s ease}
 .auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-.auth-logo-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px}
+.auth-logo-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}.auth-logo-icon img{width:100%;height:100%;object-fit:contain}
 .auth-logo h1{font-size:18px;font-weight:700;letter-spacing:-.5px}
 .auth-logo p{font-size:12px;color:var(--text2)}
 .auth-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
@@ -35,7 +37,7 @@ button{cursor:pointer;font-family:inherit}input,select,textarea{font-family:inhe
 /* SIDEBAR */
 .sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;overflow-y:auto;transition:.3s}
 .sidebar-header{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.sidebar-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px}
+.sidebar-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.sidebar-icon img{width:100%;height:100%;object-fit:contain}
 .sidebar-title{font-size:13px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
 .sidebar-sub{font-size:10px;color:var(--text2)}
 .sidebar-nav{padding:12px 8px;flex:1}
@@ -172,6 +174,14 @@ tr:hover td{background:#ffffff05}
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.auth-box{padding:32px 24px}}
 .ot-t{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:#F59E0B20;color:var(--warning)}
 .late-t{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:#EF444420;color:var(--danger)}
+/* LIVE INDICATOR */
+.live-badge{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;background:var(--card);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text2);transition:.3s}
+.live-badge.on{border-color:#10B98140;color:var(--success)}
+.live-badge.err{border-color:#EF444440;color:var(--danger)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:.3s}
+.live-badge.on .live-dot{background:var(--success);animation:livepulse 1.8s ease-in-out infinite}
+.live-badge.err .live-dot{background:var(--danger)}
+@keyframes livepulse{0%,100%{box-shadow:0 0 0 0 #10B98155}50%{box-shadow:0 0 0 5px transparent}}
 </style>
 </head>
 <body>
@@ -182,7 +192,7 @@ tr:hover td{background:#ffffff05}
 <div id="auth-screen" style="display:none">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="auth-logo-icon">🏛️</div>
+      <div class="auth-logo-icon"><img src="logo.png" alt="Balayan Logo"/></div>
       <div><h1>DTR System</h1><p>Municipality of Balayan, Batangas</p></div>
     </div>
     <div class="auth-group"><div class="auth-label">Username</div><input type="text" id="au" class="auth-input" placeholder="Username" autocomplete="username"/></div>
@@ -198,7 +208,7 @@ tr:hover td{background:#ffffff05}
 <div class="app-layout">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-icon">🏛️</div>
+      <div class="sidebar-icon"><img src="logo.png" alt="Balayan Logo"/></div>
       <div><div class="sidebar-title">DTR System</div><div class="sidebar-sub">Balayan, Batangas</div></div>
     </div>
     <nav class="sidebar-nav">
@@ -239,6 +249,7 @@ tr:hover td{background:#ffffff05}
         <div><div class="page-title" id="ptitle">Dashboard</div><div class="page-subtitle" id="psub">Overview &amp; summary</div></div>
       </div>
       <div class="topbar-right">
+        <div class="live-badge" id="livebadge" title="Connecting…"><div class="live-dot" id="rtdot"></div><span id="rtlabel">Connecting…</span></div>
         <button class="tbtn" onclick="refreshData()">🔄 Refresh</button>
         <button class="tbtn p" id="tbnadd" onclick="SP('addlog',null)" style="display:none">+ Add Log</button>
       </div>
@@ -453,7 +464,7 @@ tr:hover td{background:#ffffff05}
 <!-- ═══════════════════════════════════════════════════════ -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import{getFirestore,collection,getDocs,addDoc,doc,setDoc,updateDoc,deleteDoc,query,orderBy,writeBatch,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import{getFirestore,collection,onSnapshot,addDoc,doc,setDoc,updateDoc,deleteDoc,query,orderBy,writeBatch,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // ──────────────────────────────────────────────────────────
 // FIREBASE CONFIG  ← confirmed in index.html
@@ -483,6 +494,7 @@ let hChart=null, dChart=null;
 let curRT='summary';
 let curAttLogs=[], curAttEmp=null;
 let impData={employees:[],logs:[]};
+let unsubEmp=null, unsubLogs=null, _renderTimer=null;
 
 // ── BOOT ───────────────────────────────────────────────────
 async function boot(){
@@ -505,7 +517,7 @@ window.doLogin=function(){
   }else{document.getElementById('ae').style.display='block';document.getElementById('ap').value='';}
 };
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('auth-screen').style.display!=='none')window.doLogin();});
-window.doLogout=function(){sessionStorage.clear();location.reload();};
+window.doLogout=function(){if(unsubEmp)unsubEmp();if(unsubLogs)unsubLogs();sessionStorage.clear();location.reload();};
 
 // ── START ──────────────────────────────────────────────────
 async function startApp(){
@@ -514,24 +526,43 @@ async function startApp(){
   document.getElementById('uav').textContent=cUser[0].toUpperCase();
   document.getElementById('urole').textContent=isAdmin?'Administrator':'Staff';
   if(isAdmin){document.getElementById('anav').style.display='block';document.getElementById('tbnadd').style.display='flex';document.getElementById('lath').style.display='';}
-  await loadAll();
-  renderDash();
+  startListeners();
   initDZ();
 }
 
-// ── LOAD ───────────────────────────────────────────────────
-async function loadAll(){
-  try{
-    const[eS,lS]=await Promise.all([
-      getDocs(collection(db,'dtr_employees')),
-      getDocs(query(collection(db,'dtr_logs'),orderBy('date','desc')))
-    ]);
-    allEmp=eS.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.name.localeCompare(b.name));
-    allLogs=lS.docs.map(d=>({id:d.id,...d.data()}));
-    fillSelects();
-  }catch(e){toast('Load failed — check Firestore rules','error');}
+// ── LIVE STATUS ────────────────────────────────────────────
+function setLiveStatus(state){
+  const badge=document.getElementById('livebadge');
+  const lbl=document.getElementById('rtlabel');
+  if(!badge)return;
+  badge.className='live-badge'+(state==='live'?' on':state==='error'?' err':'');
+  lbl.textContent=state==='live'?'Live':state==='error'?'Disconnected':'Connecting…';
 }
-window.refreshData=async function(){toast('Refreshing…','info');await loadAll();renderPC(curPID());toast('Refreshed','success');};
+
+// ── REALTIME LISTENERS ─────────────────────────────────────
+function scheduleRender(){
+  clearTimeout(_renderTimer);
+  _renderTimer=setTimeout(()=>{
+    fillSelects();
+    renderDash();
+    renderPC(curPID());
+    setLiveStatus('live');
+  },120);
+}
+
+function startListeners(){
+  setLiveStatus('connecting');
+  unsubEmp=onSnapshot(collection(db,'dtr_employees'),snap=>{
+    allEmp=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.name.localeCompare(b.name));
+    scheduleRender();
+  },()=>setLiveStatus('error'));
+  unsubLogs=onSnapshot(query(collection(db,'dtr_logs'),orderBy('date','desc')),snap=>{
+    allLogs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    scheduleRender();
+  },()=>setLiveStatus('error'));
+}
+
+window.refreshData=function(){toast('Real-time sync is active — data updates automatically ✨','info');};
 function curPID(){const p=document.querySelector('.page.active');return p?p.id.replace('page-',''):'dashboard';}
 function fillSelects(){
   ['lfEmp','attEmp','ale'].forEach(id=>{
@@ -668,13 +699,12 @@ window.saveEL=async function(){
   const late=+document.getElementById('ellate').value,ot=+document.getElementById('elot').value;
   const hrs=cH(ci,co);const days=cD(hrs);
   try{await updateDoc(doc(db,'dtr_logs',id),{date,checkIn:ci,checkOut:co,minutesLate:late,overtime:ot,totalHours:hrs,daysAccumulated:days});
-  const i=allLogs.findIndex(x=>x.id===id);if(i>=0)allLogs[i]={...allLogs[i],date,checkIn:ci,checkOut:co,minutesLate:late,overtime:ot,totalHours:hrs,daysAccumulated:days};
-  CM('modal-el');renderLogs();toast('Updated','success');}catch(e){toast('Error: '+e.message,'error');}
+  CM('modal-el');toast('Updated — syncing…','success');}catch(e){toast('Error: '+e.message,'error');}
 };
 window.delLog=async function(){
   if(!confirm('Delete this log?'))return;
   const id=document.getElementById('elid').value;
-  try{await deleteDoc(doc(db,'dtr_logs',id));allLogs=allLogs.filter(x=>x.id!==id);CM('modal-el');renderLogs();toast('Deleted','success');}catch(e){toast('Error: '+e.message,'error');}
+  try{await deleteDoc(doc(db,'dtr_logs',id));CM('modal-el');toast('Deleted — syncing…','success');}catch(e){toast('Error: '+e.message,'error');}
 };
 
 // ── ATTENDANCE ─────────────────────────────────────────────
@@ -745,11 +775,11 @@ window.renderManage=function(){
 window.saveEmp=async function(){
   const name=document.getElementById('newEmpName').value.trim();
   if(!name){toast('Enter name','error');return;}
-  try{const r=await addDoc(collection(db,'dtr_employees'),{name,createdAt:serverTimestamp()});allEmp.push({id:r.id,name});allEmp.sort((a,b)=>a.name.localeCompare(b.name));fillSelects();renderManage();CM('modal-ae');document.getElementById('newEmpName').value='';toast('Added','success');}catch(e){toast('Error: '+e.message,'error');}
+  try{await addDoc(collection(db,'dtr_employees'),{name,createdAt:serverTimestamp()});CM('modal-ae');document.getElementById('newEmpName').value='';toast('Added — syncing…','success');}catch(e){toast('Error: '+e.message,'error');}
 };
 window.delEmp=async function(id,name){
   if(!confirm(`Remove "${name}"? Logs are kept.`))return;
-  try{await deleteDoc(doc(db,'dtr_employees',id));allEmp=allEmp.filter(e=>e.id!==id);fillSelects();renderManage();toast('Removed','success');}catch(e){toast('Error: '+e.message,'error');}
+  try{await deleteDoc(doc(db,'dtr_employees',id));toast('Removed — syncing…','success');}catch(e){toast('Error: '+e.message,'error');}
 };
 
 // ── ADD LOG ────────────────────────────────────────────────
@@ -770,9 +800,8 @@ window.submitAL=async function(){
   const emp=allEmp.find(e=>e.id===eid);const hrs=cH(ci,co);const ot=+document.getElementById('alot').value||Math.max(0,hrs-8);const days=cD(hrs);
   const btn=document.getElementById('alsub');
   try{btn.innerHTML='<div class="loader"></div>';btn.disabled=true;
-  const r=await addDoc(collection(db,'dtr_logs'),{employeeId:eid,employeeName:emp?emp.name:eid,date,checkIn:ci,checkOut:co,totalHours:hrs,overtime:ot,daysAccumulated:days,minutesLate:late,createdAt:serverTimestamp()});
-  allLogs.unshift({id:r.id,employeeId:eid,employeeName:emp?emp.name:eid,date,checkIn:ci,checkOut:co,totalHours:hrs,overtime:ot,daysAccumulated:days,minutesLate:late});
-  toast('Log saved','success');resetAL();}catch(e){toast('Error: '+e.message,'error');}
+  await addDoc(collection(db,'dtr_logs'),{employeeId:eid,employeeName:emp?emp.name:eid,date,checkIn:ci,checkOut:co,totalHours:hrs,overtime:ot,daysAccumulated:days,minutesLate:late,createdAt:serverTimestamp()});
+  toast('Log saved — syncing…','success');resetAL();}catch(e){toast('Error: '+e.message,'error');}
   finally{btn.innerHTML='💾 Save Log';btn.disabled=false;}
 };
 
